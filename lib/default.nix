@@ -1,7 +1,7 @@
 { lib, sysSet }:
 let
   inherit (builtins) listToAttrs attrNames readDir;
-  inherit (lib) flatten removeSuffix genAttrs nixosSystem nameValuePair;
+  inherit (lib) flatten removeSuffix nixosSystem nameValuePair recursiveUpdate;
 in rec {
   # Imports (keeps namespace(?) of lib, e.g., lib.example not lib.util.example (I think?).)
   # import = [ /util.nix ];
@@ -18,9 +18,9 @@ in rec {
   mkFlake =
     # Function to generate the flake output
     { nixpkgs, inputs }:
-    { hostsDir, sysSet ? sysSet, globalModules ? [ ], perSystem ? { }
-    , flake ? { } }:
-    lib.recursiveUpdate {
+    { src, hostsDir ? src+/hosts, sysSet ? sysSet, globalModules ? [ ]
+    , specialArgs ? { }, perSystem ? { }, flake ? { } }:
+    recursiveUpdate {
       # TODO: Implement perSystem
       nixosConfigurations = mkNixOS {
         hosts = nixFiles hostsDir;
@@ -29,11 +29,14 @@ in rec {
       };
     } flake;
 
-  mkNixOS = { hosts, hostsDir, globalModules, systems, inputs }:
+  mkNixOS = { hosts, hostsDir, systems, globalModules, specialArgs, inputs }:
     listToAttrs (flatten (map (host:
       map (system:
         nameValuePair "${host}@${system}" (nixosSystem {
-          specialArgs = { inherit system lib inputs; };
+          specialArgs = recursiveUpdate {
+            inherit system inputs;
+            lib = mkLib lib;
+          } specialArgs;
           modules = [ (hostsDir + /${host}.nix) ] ++ globalModules;
         })) systems) hosts));
 }
