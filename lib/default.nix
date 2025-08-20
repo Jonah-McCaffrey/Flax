@@ -29,16 +29,16 @@ in rec {
         hosts = nixFiles hostsDir;
         systems = sysSet.nixos;
         controllers = attrNames (readDir controlDir);
-        inherit confOutput lib inputs;
+        inherit hostsDir confOutput lib inputs;
       };
     } flake;
 
-  mkNixOS = { hosts, systems, controllers, confOutput, lib, inputs }:
+  mkNixOS = { hosts, hostsDir, systems, controllers, confOutput, lib, inputs }:
     listToAttrs (flatten (map (host:
       map (system:
         nameValuePair "${host}@${system}"
-        (confOutput { inherit host system controllers lib inputs; })) systems)
-      hosts));
+        (confOutput { inherit host hostsDir system controllers lib inputs; }))
+      systems) hosts));
 
   # === OLD ===
   # mkNixOS =
@@ -55,9 +55,9 @@ in rec {
 
   confOutputDefault =
     # Defining function to create a host configuration
-    { host, system, controllers, lib, inputs, }:
+    { host, hostsDir, system, controllers, lib, inputs, }:
     nixosSystem {
       specialArgs = { inherit system lib inputs; };
-      modules = [ ./hosts/${host}.nix ] ++ controllers;
+      modules = [ (hostsDir + /${host}.nix) ] ++ controllers;
     };
 }
