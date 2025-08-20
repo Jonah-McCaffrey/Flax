@@ -1,8 +1,10 @@
-{ lib, sysSet, }:
-let
+{
+  lib,
+  sysSet,
+}: let
   inherit (builtins) listToAttrs;
-  inherit (lib) flatten nixosSystem nameValuePair recursiveUpdate;
-  inherit (import ./util.nix lib) getFileNames;
+  inherit (lib) flatten nixosSystem nameValuePair recursiveUpdate genAttrs;
+  inherit (import ./util.nix lib) getFileNames mergeSets;
 in rec {
   # Imports (keeps namespace(?) of lib, e.g., lib.example not lib.util.example (I think?).)
   # imports = [ /util.nix ];
@@ -15,27 +17,54 @@ in rec {
 
   mkFlake =
     # Function to generate the flake output
-    { nixpkgs, inputs, }:
-    { src, hostsDir ? null, sysSet ? sysSet, globalModules ? [ ]
-    , specialArgs ? { }, perSystem ? { }, flake ? { }, }:
-    let hostsDir' = if hostsDir == null then src + /hosts else hostsDir;
-    in recursiveUpdate {
-      # TODO: Implement perSystem
-      nixosConfigurations = mkNixOS {
-        hosts = getFileNames hostsDir';
-        systems = sysSet.nixos;
-        inherit hostsDir' globalModules specialArgs inputs;
-      };
-    } flake;
+    {
+      nixpkgs,
+      inputs,
+    }: {
+      src,
+      hostsDir ? null,
+      sysSet ? sysSet,
+      globalModules ? [],
+      specialArgs ? {},
+      perSystem ? {},
+      flake ? {},
+    }: let
+      hostsDir' =
+        if hostsDir == null
+        then src + /hosts
+        else hostsDir;
+    in
+      mergeSets [
+        {
+          nixosConfigurations = mkNixOS {
+            hosts = getFileNames hostsDir';
+            systems = sysSet.nixos;
+            inherit hostsDir' globalModules specialArgs inputs;
+          };
+        }
+        (genAttrs sysSet.default perSystem)
+        flake
+      ];
 
-  mkNixOS = { hosts, hostsDir', systems, globalModules, specialArgs, inputs, }:
+  mkNixOS = {
+    hosts,
+    hostsDir',
+    systems,
+    globalModules,
+    specialArgs,
+    inputs,
+  }:
     listToAttrs (flatten (map (host:
       map (system:
         nameValuePair "${host}@${system}" (nixosSystem {
-          specialArgs = recursiveUpdate {
-            inherit system inputs;
-            util = import ./util.nix lib;
-          } specialArgs;
-          modules = [ (hostsDir' + /${host}.nix) ] ++ globalModules;
-        })) systems) hosts));
+          specialArgs =
+            recursiveUpdate {
+              inherit system inputs;
+              util = import ./util.nix lib;
+            }
+            specialArgs;
+          modules = [(hostsDir' + /${host}.nix)] ++ globalModules;
+        }))
+      systems)
+    hosts));
 }
