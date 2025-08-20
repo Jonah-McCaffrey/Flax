@@ -25,7 +25,7 @@ in rec {
       nixosConfigurations = mkNixOS {
         hosts = nixFiles hostsDir;
         systems = sysSet.nixos;
-        inherit hostsDir globalModules inputs;
+        inherit hostsDir globalModules specialArgs inputs;
       };
     } flake;
 
