@@ -18,7 +18,7 @@ in rec {
   mkFlake =
     # Function to generate the flake output
     { nixpkgs, inputs }:
-    { hostsDir ? ./hosts, sysSet ? sysSet, controlDir
+    { hostsDir ? ./hosts, sysSet ? (import sysSet), controlDir
     , confOutput ? confOutputDefault, globalModules ? [ ], perSystem ? { }
     , flake ? { } }:
     lib.recursiveUpdate {
