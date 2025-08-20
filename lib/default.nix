@@ -20,14 +20,13 @@ in rec {
     { nixpkgs, inputs }:
     { hostsDir, sysSet ? sysSet, controlDir, globalModules ? [ ]
     , perSystem ? { }, flake ? { } }:
-    let globalModules = globalModules // (lib.fileset.toList controlDir);
+    let globalModules = globalModules ++ (lib.fileset.toList controlDir);
     in lib.recursiveUpdate {
       # TODO: Implement perSystem
       nixosConfigurations = mkNixOS {
         hosts = nixFiles hostsDir;
         systems = sysSet.nixos;
-        controllers = attrNames (readDir controlDir);
-        inherit globalModules lib inputs;
+        inherit hostsDir globalModules inputs;
       };
     } flake;
 
