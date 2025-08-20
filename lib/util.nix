@@ -1,1 +1,1 @@
-{ }
+lib: { enabled = { enable = true; }; }

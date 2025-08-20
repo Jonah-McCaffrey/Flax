@@ -35,7 +35,7 @@ in rec {
         nameValuePair "${host}@${system}" (nixosSystem {
           specialArgs = recursiveUpdate {
             inherit system inputs;
-            lib = mkLib lib;
+            util = import ./util.nix lib;
           } specialArgs;
           modules = [ (hostsDir + /${host}.nix) ] ++ globalModules;
         })) systems) hosts));
