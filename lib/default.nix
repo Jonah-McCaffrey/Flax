@@ -1,6 +1,6 @@
 {
   lib,
-  sysSet,
+  systemSet,
 }: let
   inherit (builtins) listToAttrs;
   inherit (lib) flatten nixosSystem nameValuePair recursiveUpdate genAttrs;
@@ -23,10 +23,10 @@ in rec {
     }: {
       src,
       hostsDir ? null,
-      sysSet ? sysSet,
+      sysSet ? systemSet,
       globalModules ? [],
       specialArgs ? {},
-      perSystem ? {},
+      packages ? {},
       flake ? {},
     }: let
       hostsDir' =
@@ -42,7 +42,7 @@ in rec {
             inherit hostsDir' globalModules specialArgs inputs;
           };
         }
-        (genAttrs sysSet.default perSystem)
+        (genAttrs sysSet.packages packages)
         flake
       ];
 

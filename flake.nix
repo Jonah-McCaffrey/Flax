@@ -9,7 +9,7 @@
   }: {
     lib = import ./lib {
       lib = nixpkgs.lib;
-      sysSet = import ./lib/systems.nix;
+      systemSet = import ./lib/systems.nix;
     };
   };
 }
