@@ -18,23 +18,22 @@ in rec {
   mkFlake =
     # Function to generate the flake output
     { nixpkgs, inputs }:
-    { hostsDir, sysSet ? sysSet, controlDir, globalModules ? [ ]
-    , perSystem ? { }, flake ? { } }:
-    let globals = globalModules ++ (lib.fileset.toList controlDir);
-    in lib.recursiveUpdate {
+    { hostsDir, sysSet ? sysSet, globalModules ? [ ], perSystem ? { }
+    , flake ? { } }:
+    lib.recursiveUpdate {
       # TODO: Implement perSystem
       nixosConfigurations = mkNixOS {
         hosts = nixFiles hostsDir;
         systems = sysSet.nixos;
-        inherit hostsDir globals inputs;
+        inherit hostsDir globalModules inputs;
       };
     } flake;
 
-  mkNixOS = { hosts, hostsDir, globals, systems, inputs }:
+  mkNixOS = { hosts, hostsDir, globalModules, systems, inputs }:
     listToAttrs (flatten (map (host:
       map (system:
         nameValuePair "${host}@${system}" (nixosSystem {
           specialArgs = { inherit system lib inputs; };
-          modules = [ (hostsDir + /${host}.nix) ] ++ globals;
+          modules = [ (hostsDir + /${host}.nix) ] ++ globalModules;
         })) systems) hosts));
 }
