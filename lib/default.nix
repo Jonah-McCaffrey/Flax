@@ -18,14 +18,14 @@ in rec {
   mkFlake =
     # Function to generate the flake output
     { nixpkgs, inputs }:
-    { hostsDir ? ./hosts, sysSet ? (import sysSet), controlDir
+    { hostsDir ? ./hosts, sysSet ? sysSet, controlDir
     , confOutput ? confOutputDefault, globalModules ? [ ], perSystem ? { }
     , flake ? { } }:
     lib.recursiveUpdate {
-      imports = # Apply the contents of perSystem for each system in systems
-        [ # TODO: check the flake-parts implementation
-          (genAttrs sysSet.default perSystem)
-        ];
+      # imports = # Apply the contents of perSystem for each system in systems
+      #   [ # TODO: check the flake-parts implementation
+      #     (genAttrs sysSet.default perSystem)
+      #   ];
       nixosConfigurations = mkNixOS {
         hosts = nixFiles hostsDir;
         systems = sysSet.nixos;
