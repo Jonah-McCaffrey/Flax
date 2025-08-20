@@ -42,7 +42,9 @@ in rec {
             inherit hostsDir' globalModules specialArgs inputs;
           };
         }
-        (genAttrs sysSet.packages packages)
+        {
+          packages = genAttrs sysSet.packages packages;
+        }
         flake
       ];
 
