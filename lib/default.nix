@@ -18,7 +18,7 @@ in rec {
   mkFlake =
     # Function to generate the flake output
     { nixpkgs, inputs }:
-    { hostsDir, sysSet ? sysSet, controlDir, confOutput, globalModules ? [ ]
+    { hostsDir, sysSet ? sysSet, controlDir, globalModules ? [ ]
     , perSystem ? { }, flake ? { } }:
     let globalModules = globalModules // (lib.fileset.toList controlDir);
     in lib.recursiveUpdate {
