@@ -1,9 +1,12 @@
 {
   description = "Flake for the Flax nix project";
 
-  inputs = { nixpkgs-lib.url = "github:nix-community/nixpkgs.lib"; };
+  inputs = { nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable"; };
 
-  outputs = { self, nixpkgs-lib }: {
-    lib = import ./lib/default.nix { inherit (nixpkgs-lib) lib; };
+  outputs = { self, nixpkgs }: {
+    lib = import ./lib {
+      inherit (nixpkgs.lib) lib;
+      sysSet = import ./lib/systems.nix;
+    };
   };
 }
