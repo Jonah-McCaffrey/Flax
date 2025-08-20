@@ -18,46 +18,24 @@ in rec {
   mkFlake =
     # Function to generate the flake output
     { nixpkgs, inputs }:
-    { hostsDir, sysSet ? sysSet, controlDir, confOutput ? confOutputDefault
-    , globalModules ? [ ], perSystem ? { }, flake ? { } }:
-    lib.recursiveUpdate {
-      # imports = # Apply the contents of perSystem for each system in systems
-      #   [ # TODO: check the flake-parts implementation
-      #     (genAttrs sysSet.default perSystem)
-      #   ];
+    { hostsDir, sysSet ? sysSet, controlDir, confOutput, globalModules ? [ ]
+    , perSystem ? { }, flake ? { } }:
+    let globalModules = globalModules // (lib.fileset.toList controlDir);
+    in lib.recursiveUpdate {
+      # TODO: Implement perSystem
       nixosConfigurations = mkNixOS {
         hosts = nixFiles hostsDir;
         systems = sysSet.nixos;
         controllers = attrNames (readDir controlDir);
-        inherit hostsDir confOutput lib inputs;
+        inherit globalModules lib inputs;
       };
     } flake;
 
-  mkNixOS = { hosts, hostsDir, systems, controllers, confOutput, lib, inputs }:
+  mkNixOS = { hosts, hostsDir, globalModules, systems, inputs }:
     listToAttrs (flatten (map (host:
       map (system:
-        nameValuePair "${host}@${system}"
-        (confOutput { inherit host hostsDir system controllers lib inputs; }))
-      systems) hosts));
-
-  # === OLD ===
-  # mkNixOS =
-  #   # Defining the function to map all hosts/systems to a configuration
-  #   { hostDir, hostFunc, lib, inputs, }:
-  #   let
-  #     hosts = filter (host: config.${host}.enable)
-  #       (map (host: removeSuffix ".nix" host) (attrNames (readDir ./hosts)));
-  #   in listToAttrs (flatten (attrValues (map (host:
-  #     map (system: {
-  #       name = "${host}@${system}";
-  #       value = hostFunc { inherit host system lib inputs; };
-  #     }) config.${host}.systems) hosts)));
-
-  confOutputDefault =
-    # Defining function to create a host configuration
-    { host, hostsDir, system, controllers, lib, inputs, }:
-    nixosSystem {
-      specialArgs = { inherit system lib inputs; };
-      modules = [ (hostsDir + /${host}.nix) ] ++ controllers;
-    };
+        nameValuePair "${host}@${system}" (nixosSystem {
+          specialArgs = { inherit system lib inputs; };
+          modules = [ (hostsDir + /${host}.nix) ] ++ globalModules;
+        })) systems) hosts));
 }
