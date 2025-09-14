@@ -15,7 +15,7 @@ in rec {
     sysSet ? systemSet,
     globalModules ? [],
     specialArgs ? {},
-    packages ? {},
+    perSystem ? {},
     flake ? {},
   }: let
     hostsDir' =
@@ -23,7 +23,8 @@ in rec {
       then src + /hosts
       else hostsDir;
   in
-    mergeSets [
+    mergeSets (genAttrs sysSet.default perSystem)
+    ++ [
       {
         nixosConfigurations = mkNixOS {
           hosts = getFileNames hostsDir';
@@ -31,7 +32,6 @@ in rec {
           inherit hostsDir' globalModules specialArgs inputs;
         };
       }
-      {packages = genAttrs sysSet.packages packages;}
       flake
     ];
 
