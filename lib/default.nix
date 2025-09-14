@@ -11,25 +11,20 @@ in rec {
     nixpkgs,
     src,
     inputs ? {},
-    hostsDir ? null,
+    hostsDir ? (src + /hosts),
     sysSet ? systemSet,
     globalModules ? [],
     specialArgs ? {},
     perSystem ? {},
     flake ? {},
-  }: let
-    hostsDir' =
-      if hostsDir == null
-      then src + /hosts
-      else hostsDir;
-  in
+  }:
     mergeSets ((map perSystem sysSet.default)
       ++ [
         {
           nixosConfigurations = mkNixOS {
-            hosts = getFileNames hostsDir';
+            hosts = getFileNames hostsDir;
             systems = sysSet.nixos;
-            inherit hostsDir' globalModules specialArgs inputs;
+            inherit hostsDir globalModules specialArgs inputs;
           };
         }
         flake
