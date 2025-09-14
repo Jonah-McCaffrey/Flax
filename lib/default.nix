@@ -23,17 +23,17 @@ in rec {
       then src + /hosts
       else hostsDir;
   in
-    mergeSets (map perSystem sysSet.default)
-    ++ [
-      {
-        nixosConfigurations = mkNixOS {
-          hosts = getFileNames hostsDir';
-          systems = sysSet.nixos;
-          inherit hostsDir' globalModules specialArgs inputs;
-        };
-      }
-      flake
-    ];
+    mergeSets ((map perSystem sysSet.default)
+      ++ [
+        {
+          nixosConfigurations = mkNixOS {
+            hosts = getFileNames hostsDir';
+            systems = sysSet.nixos;
+            inherit hostsDir' globalModules specialArgs inputs;
+          };
+        }
+        flake
+      ]);
 
   # Function to generate the nixos systems
   mkNixOS = {
