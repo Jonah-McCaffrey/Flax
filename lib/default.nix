@@ -23,7 +23,7 @@ in rec {
       then src + /hosts
       else hostsDir;
   in
-    mergeSets (genAttrs sysSet.default perSystem)
+    mergeSets (map perSystem sysSet.default)
     ++ [
       {
         nixosConfigurations = mkNixOS {
