@@ -3,7 +3,7 @@
   systemSet,
 }: let
   inherit (builtins) listToAttrs;
-  inherit (lib) flatten nixosSystem nameValuePair recursiveUpdate genAttrs;
+  inherit (lib) flatten nixosSystem nameValuePair recursiveUpdate;
   inherit (import ./util.nix lib) getFileNames mergeSets;
 in rec {
   # Function to generate the flake output
@@ -33,7 +33,7 @@ in rec {
   # Function to generate the nixos systems
   mkNixOS = {
     hosts,
-    hostsDir',
+    hostsDir,
     systems,
     globalModules,
     specialArgs,
@@ -48,7 +48,7 @@ in rec {
               util = import ./util.nix lib;
             }
             specialArgs;
-          modules = [(hostsDir' + /${host}.nix)] ++ globalModules;
+          modules = [(hostsDir + /${host}.nix)] ++ globalModules;
         }))
       systems)
     hosts));
