@@ -13,6 +13,7 @@ in rec {
     inputs ? {},
     hostsDir ? (src + /hosts),
     sysSet ? systemSet,
+    flakeModules ? {},
     globalModules ? [],
     specialArgs ? {},
     perSystem ? {},
@@ -27,6 +28,7 @@ in rec {
             inherit hostsDir globalModules specialArgs inputs;
           };
         }
+        flakeModules
         flake
       ]);
 
