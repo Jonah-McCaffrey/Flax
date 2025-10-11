@@ -3,8 +3,8 @@
   systemSet,
 }: let
   inherit (builtins) listToAttrs;
-  inherit (lib) flatten nixosSystem nameValuePair recursiveUpdate;
-  inherit (import ./util.nix lib) getFileNames mergeSets;
+  inherit (lib) flatten nixosSystem nameValuePair recursiveUpdate mkMerge;
+  inherit (import ./util.nix lib) getFileNames;
 in rec {
   # Function to generate the flake output
   mkFlake = {
@@ -19,7 +19,7 @@ in rec {
     perSystem ? {},
     flake ? {},
   }:
-    mergeSets ((map perSystem sysSet.default)
+    mkMerge ((map perSystem sysSet.default)
       ++ [
         {
           nixosConfigurations = mkNixOS {
