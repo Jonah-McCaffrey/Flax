@@ -1,57 +1,25 @@
 {
   lib,
   systemSet,
-}: let
-  inherit (builtins) listToAttrs;
-  inherit (lib) flatten nixosSystem nameValuePair recursiveUpdate;
-  inherit (import ./util.nix lib) getFileNames mergeSets;
-in rec {
+}: {
   # Function to generate the flake output
-  mkFlake = {
-    nixpkgs,
-    src,
-    inputs ? {},
-    hostsDir ? (src + /hosts),
-    sysSet ? systemSet,
-    flakeModules ? {},
-    globalModules ? [],
-    specialArgs ? {},
+  mkFlake = {inputs}: {
+    imports ? [],
+    systems ? systemSet.default,
     perSystem ? {},
     flake ? {},
   }:
-    mergeSets ((map perSystem sysSet.default)
+    lib.mkMerge (
+      imports # Flake modules
       ++ [
-        {
-          nixosConfigurations = mkNixOS {
-            hosts = getFileNames hostsDir;
-            systems = sysSet.nixos;
-            inherit hostsDir globalModules specialArgs inputs;
-          };
-        }
-        flakeModules
-        flake
-      ]);
+        (lib.genAttrs systems perSystem) # Per system outputs
+        flake # Standard flake outputs
+      ]
+    );
 
-  # Function to generate the nixos systems
-  mkNixOS = {
-    hosts,
-    hostsDir,
-    systems,
-    globalModules,
-    specialArgs,
-    inputs,
-  }:
-    listToAttrs (flatten (map (host:
-      map (system:
-        nameValuePair "${host}@${system}" (nixosSystem {
-          specialArgs =
-            recursiveUpdate {
-              inherit system inputs;
-              util = import ./util.nix lib;
-            }
-            specialArgs;
-          modules = [(hostsDir + /${host}.nix)] ++ globalModules;
-        }))
-      systems)
-    hosts));
+  # Import lib functions
+  imports = [
+    ./symlink.nix
+    ./util.nix
+  ];
 }
