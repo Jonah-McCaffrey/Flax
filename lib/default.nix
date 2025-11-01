@@ -12,7 +12,7 @@
     lib.foldl' lib.recursiveUpdate {} (
       imports # Flake modules
       ++ [
-        (lib.genAttrs systems perSystem) # Per system outputs
+        (lib.mkIf (perSystem != null) (lib.genAttrs systems perSystem)) # Per system outputs
         flake # Standard flake outputs
       ]
     );
