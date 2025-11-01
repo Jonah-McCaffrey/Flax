@@ -19,7 +19,8 @@
 
   # Import lib functions
   imports = [
-    ./symlink.nix
     ./util.nix
+    ./nixos.nix
+    ./symlink.nix
   ];
 }
