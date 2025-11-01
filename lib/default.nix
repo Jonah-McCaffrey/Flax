@@ -6,7 +6,7 @@
   mkFlake = {inputs}: {
     imports ? [],
     systems ? systemSet.default,
-    perSystem ? {},
+    perSystem ? null,
     flake ? {},
   }:
     lib.foldl' lib.recursiveUpdate {} (
