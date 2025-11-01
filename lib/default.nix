@@ -6,13 +6,13 @@
   mkFlake = {inputs}: {
     imports ? [],
     systems ? systemSet.default,
-    perSystem ? null,
+    perSystem ? {},
     flake ? {},
   }:
     lib.foldl' lib.recursiveUpdate {} (
       imports # Flake modules
       ++ [
-        (lib.mkIf (perSystem != null) (lib.genAttrs systems perSystem)) # Per system outputs
+        (map perSystem systems) # Outputs defined per-system
         flake # Standard flake outputs
       ]
     );
