@@ -14,10 +14,9 @@
       (map perSystem systems) # Outputs defined per-system
       flake # Standard flake outputs
     ]))
-    // ({}:
-      {
-        imports = imports;
-      } {});
+    // (({}: {
+      imports = imports;
+    }) {});
 
   # Import lib functions
   imports = [
