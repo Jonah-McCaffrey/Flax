@@ -1,6 +1,7 @@
 {
   lib,
   systemSet,
+  ...
 }: let
   inherit (builtins) listToAttrs;
   inherit (lib) flatten nixosSystem nameValuePair;
