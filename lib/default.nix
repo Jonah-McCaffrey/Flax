@@ -22,9 +22,9 @@
     ]);
 
   # Import lib functions
-  imports = [
-    ./util.nix
-    ./nixos.nix
-    ./symlink.nix
-  ];
+  # imports = [
+  #   ./util.nix
+  #   ./nixos.nix
+  #   ./symlink.nix
+  # ];
 }
