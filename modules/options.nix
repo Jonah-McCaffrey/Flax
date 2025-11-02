@@ -1,10 +1,10 @@
 {lib, ...}: let
   inherit (lib) mkOption;
-  inherit (lib.types) listOf submodule str attrs attrsOf;
+  inherit (lib.types) listOf functionTo str attrs attrsOf;
 in {
   options = {
     imports = mkOption {
-      type = listOf submodule;
+      type = listOf functionTo;
       default = [];
       description = "List of flake modules to import";
     };
@@ -19,7 +19,7 @@ in {
       description = "Attrs set of lists with systems for different purposes";
     };
     perSystem = mkOption {
-      type = submodule;
+      type = functionTo;
       default = {system, ...}: {};
       description = "Function for defining per-system attributes";
     };

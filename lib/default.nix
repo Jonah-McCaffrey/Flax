@@ -12,7 +12,7 @@
       class = "flake";
     };
 
-  mkFlake = args: module: (evalFlakeModule args module).config.flake;
+  mkFlake = args: module: (evalFlakeModule args module).config;
 
   # Function to generate the flake output
   # mkFlake = args: {
