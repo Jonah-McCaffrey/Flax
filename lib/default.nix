@@ -10,7 +10,7 @@
     flake ? {},
   }:
     lib.foldl' lib.recursiveUpdate {} (lib.flatten [
-      (lib.evalModules {inherit imports;})
+      (lib.evalModules {modules = imports;})
       (map perSystem systems) # Outputs defined per-system
       flake # Standard flake outputs
     ]);
