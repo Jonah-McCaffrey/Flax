@@ -10,10 +10,13 @@
     flake ? {},
   }:
     lib.foldl' lib.recursiveUpdate {} (lib.flatten [
-      {inherit imports;} # Flake modules
+      # {inherit imports;} # Flake modules
       (map perSystem systems) # Outputs defined per-system
       flake # Standard flake outputs
-    ]);
+    ])
+    // {
+      imports = imports;
+    };
 
   # Import lib functions
   imports = [
