@@ -9,9 +9,10 @@
         module
         {imports = [../modules/options.nix];}
       ];
+      class = "flake";
     };
 
-  mkFlake = args: module: (evalFlakeModule args module).config;
+  mkFlake = args: module: (evalFlakeModule args module).config.flake;
 
   # Function to generate the flake output
   # mkFlake = args: {
