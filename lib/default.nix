@@ -9,12 +9,11 @@
     perSystem ? system: {},
     flake ? {},
   }:
-  # lib.foldl' lib.recursiveUpdate {} (lib.flatten [
-  #   # (lib.evalModules {modules = imports;}) # Flake modules
-  #   (map perSystem systems) # Outputs defined per-system
-  #   flake # Standard flake outputs
-  # ]);
-  (lib.evalModules {modules = imports;}); # Flake modules
+    lib.foldl' lib.recursiveUpdate {} (lib.flatten [
+      (lib.evalModules {modules = imports;}).config # Flake modules
+      (map perSystem systems) # Outputs defined per-system
+      flake # Standard flake outputs
+    ]);
 
   # Import lib functions
   imports = [
