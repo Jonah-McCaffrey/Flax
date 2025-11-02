@@ -1,0 +1,6 @@
+{
+  lib,
+  modules,
+}: {
+  imports = modules;
+}

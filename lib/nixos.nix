@@ -29,7 +29,7 @@ in rec {
           map (
             system:
               nameValuePair "${host}@${system}" (hostFunction {
-                modules = globalModules ++ [(hostsDir + host)];
+                modules = globalModules ++ [(import (hostsDir + "/host"))];
                 specialArgs = globalArgs // {inherit system;};
               })
           )
