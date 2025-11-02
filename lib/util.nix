@@ -1,4 +1,4 @@
-lib: let
+{lib, ...}: let
   inherit (builtins) attrNames readDir head split;
   inherit (lib) foldl' recursiveUpdate;
 in rec {
