@@ -5,8 +5,13 @@
   evalFlakeModule = args: module:
     lib.evalModules {
       specialArgs = {inputs = args.inputs;};
-      modules = [module];
+      modules = [
+        module
+        {imports = [../modules/options.nix];}
+      ];
     };
+
+  mkFlake = args: module: (evalFlakeModule args module).config;
 
   # Function to generate the flake output
   # mkFlake = args: {
@@ -20,8 +25,6 @@
   #     (map perSystem systems) # Outputs defined per-system
   #     flake # Standard flake outputs
   #   ]);
-
-  mkFlake = args: module: (evalFlakeModule args module).config;
 
   # Import lib functions
   # imports = [
