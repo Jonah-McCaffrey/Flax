@@ -5,7 +5,7 @@
   evalFlakeModule = args: module:
     lib.evalModules {
       specialArgs = {inputs = args.inputs;};
-      modules = imports;
+      modules = module.imports;
     };
 
   # Function to generate the flake output
