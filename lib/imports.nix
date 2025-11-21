@@ -1,6 +1,0 @@
-{
-  lib,
-  modules,
-}: {
-  imports = modules;
-}

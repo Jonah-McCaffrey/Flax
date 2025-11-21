@@ -1,36 +1,53 @@
 {
+  config,
   lib,
-  systemSet,
-}: rec {
-  evalFlakeModule = args: module:
-    lib.evalModules {
-      specialArgs = {inputs = args.inputs;};
-      modules = [
-        module
-        {imports = [../modules/options.nix];}
-      ];
-      class = "flake";
+  ...
+}: let
+  inherit (lib) mkOption mkEnableOption mkIf;
+  inherit (lib.types) str attrs submoduleWith bool attrsOf anything;
+in {
+  imports = [
+    ./util.nix
+    ./systems.nix
+    ./home-manager.nix
+  ];
+  options = {
+    # flax.lib = {
+    #   enable = mkEnableOption "Enable the flake lib functionality";
+    #   namespace = mkOption {
+    #     type = str;
+    #     default = "flax-lib";
+    #     description = "The namespace in which to place both the contents of Flax lib and any custom library configuration";
+    #   };
+    # };
+    flax.lib = mkOption {
+      type = submoduleWith {
+        shorthandOnlyDefinesConfig = false;
+        modules = [
+          {
+            options = {
+              enable = mkOption {
+                type = bool;
+                default = true;
+                description = "Whether to enable myOption";
+              };
+              namespace = mkOption {
+                type = str;
+                default = "";
+                description = "namespace to use for the custom library";
+              };
+            };
+            freeformType = attrsOf anything;
+            # Optional: set defaults for freeform attrs if needed
+            # config._freeformOptions = mkIf (cfg.enable) {};
+          }
+        ];
+      };
+      default = {};
+      description = "Custom library including the Flax builtin/default functionality and custom user library content under a custom namespace";
     };
-
-  mkFlake = args: module: (evalFlakeModule args module).config;
-
-  # Function to generate the flake output
-  # mkFlake = args: {
-  #   imports ? [],
-  #   systems ? systemSet.default,
-  #   perSystem ? system: {},
-  #   flake ? {},
-  # }:
-  #   lib.foldl' lib.recursiveUpdate {} (lib.flatten [
-  #     (map (module: (evalFlakeModule args module).config) imports) # Flake modules
-  #     (map perSystem systems) # Outputs defined per-system
-  #     flake # Standard flake outputs
-  #   ]);
-
-  # Import lib functions
-  # imports = [
-  #   ./util.nix
-  #   ./nixos.nix
-  #   ./symlink.nix
-  # ];
+  };
+  config = mkIf config.flax.lib.enable {
+    flake.lib = config.flax.lib;
+  };
 }

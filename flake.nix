@@ -1,15 +1,18 @@
 {
-  description = "Flake for the Flax nix project";
+  description = "A flake for my custom library, Flax.";
 
-  inputs = {nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";};
-
-  outputs = {
-    self,
-    nixpkgs,
-  }: {
-    lib = import ./lib {
-      lib = nixpkgs.lib;
-      systemSet = import ./lib/systems.nix;
-    };
+  inputs = {
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
+
+  outputs = inputs @ {flake-parts, ...}:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      flake.flakeModule.default = {
+        imports = [
+          ./lib
+          ./nixos
+        ];
+      };
+    };
 }
