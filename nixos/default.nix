@@ -4,74 +4,24 @@
   inputs,
   ...
 }: let
-  inherit (lib) mkMerge crossLists mkOption mkIf;
-  inherit (lib.types) path attrs listOf deferredModule str functionTo nonEmptyListOf bool;
+  inherit (lib) mkOption mkIf;
   inherit (inputs.nixpkgs.lib) nixosSystem;
-  cfg = config.flax;
-
-  # Function for defining all host configurations
-  mkNixOS = {
-    # systems ? ["x86_64-linux" "aarch64-linux"],
-    # hostsDir ? ./hosts,
-    # hostFunction ? nixosSystem,
-    # globalArgs ? {},
-    # globalModules ? [],
-    systems,
-    hostsDir,
-    hostFunction,
-    globalArgs,
-    globalModules,
-  }: let
-    hosts = builtins.attrNames (builtins.readDir hostsDir);
-    cfg = config.flax.lib;
-    inherit (cfg) namespace home-manager;
-    flax-lib = removeAttrs cfg ["enable" "namespace" "home-manager"];
-    configSet = mkMerge (
-      crossLists (host: system: {
-        "${host}@${system}" = hostFunction {
-          specialArgs =
-            globalArgs
-            // {inherit system;}
-            // (
-              if cfg.enable
-              then {${namespace} = flax-lib;}
-              else {}
-            );
-          modules =
-            globalModules
-            ++ [
-              # ({lib, ...}: {
-              #   _module.args.lib = lib.extend (final: prev: cfg);
-              #   environment.sessionVariables.HOST_CONFIGURATION = "${host}@${system}";
-              # })
-              {environment.sessionVariables.HOST_CONFIGURATION = "${host}@${system}";}
-              (hostsDir + "/${host}/configuration.nix")
-              ({config, ...}:
-                mkIf (config ? "home-manager" && cfg.enable) {
-                  home-manager.extraSpecialArgs.${namespace} = flax-lib // home-manager;
-                })
-            ];
-        };
-      }) [hosts systems]
-    );
-  in
-    configSet;
+  cfg = config.flax.nixos;
 in {
-  options.flax.nixos = {
-    # enable = mkEnableOption "Enable the Flax host aggregator";
+  options.flax.nixos = with lib.types; {
     enable = mkOption {
       type = bool;
       default = true;
-      description = "Enable the Flax host aggregator";
+      description = "Enable the Flax host aggregator submodule";
     };
     systems = mkOption {
       type = nonEmptyListOf str;
       default = ["x86_64-linux" "aarch64-linux"];
       description = "List of system architectures which will be generated in the flake outputs for each host configuration";
     };
-    hostsDir = mkOption {
+    src = mkOption {
       type = path;
-      default = ./hosts;
+      default = ./.;
       description = "The directory Flax will look for host configurations";
     };
     hostFunction = mkOption {
@@ -82,19 +32,17 @@ in {
     globalArgs = mkOption {
       type = attrs;
       default = {};
-      description = "Attribute set containing specialArgs which will be provided to all host configuratios";
+      description = "Attribute set containing specialArgs which will be provided to all host configurations";
     };
     globalModules = mkOption {
       type = listOf deferredModule;
       default = [];
-      description = "List containing modules which will be included in all host configuratios";
+      description = "List containing modules which will be included in all host configurations";
     };
   };
-  config.flake = {
-    nixosConfigurations =
-      mkIf cfg.nixos.enable
-      (mkNixOS {
-        inherit (cfg.nixos) systems hostsDir hostFunction globalArgs globalModules;
-      });
+  config.flake = mkIf cfg.enable {
+    nixosConfigurations = config.flax.lib.mkNixOS {
+      inherit (cfg) src systems hostFunction globalArgs globalModules;
+    };
   };
 }

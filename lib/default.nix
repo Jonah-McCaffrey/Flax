@@ -3,8 +3,8 @@
   lib,
   ...
 }: let
-  inherit (lib) mkOption mkEnableOption mkIf;
-  inherit (lib.types) str attrs submoduleWith bool attrsOf anything;
+  inherit (lib) mkOption mkIf;
+  inherit (lib.types) str submoduleWith bool attrsOf anything;
 in {
   imports = [
     ./util.nix
@@ -12,14 +12,6 @@ in {
     ./home-manager.nix
   ];
   options = {
-    # flax.lib = {
-    #   enable = mkEnableOption "Enable the flake lib functionality";
-    #   namespace = mkOption {
-    #     type = str;
-    #     default = "flax-lib";
-    #     description = "The namespace in which to place both the contents of Flax lib and any custom library configuration";
-    #   };
-    # };
     flax.lib = mkOption {
       type = submoduleWith {
         shorthandOnlyDefinesConfig = false;
@@ -47,7 +39,21 @@ in {
       description = "Custom library including the Flax builtin/default functionality and custom user library content under a custom namespace";
     };
   };
-  config = mkIf config.flax.lib.enable {
-    flake.lib = config.flax.lib;
-  };
+  config = let
+    cfg = config.flax.lib;
+    inherit (cfg) namespace home-manager;
+    flax-lib = removeAttrs cfg ["enable" "namespace" "home-manager"];
+  in
+    mkIf cfg.enable {
+      flax.nixos = {
+        globalArgs = {${namespace} = flax-lib;};
+        globalModules = [
+          ({config, ...}:
+            mkIf (config ? "home-manager") {
+              home-manager.extraSpecialArgs.${namespace} = flax-lib // home-manager;
+            })
+        ];
+      };
+      flake.lib = cfg;
+    };
 }
