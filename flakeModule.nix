@@ -1,6 +1,7 @@
 {lib, ...}: {
   imports = [
     ./lib
+    ./nixpkgs
     ./nixos
     ./homeManager
   ];
