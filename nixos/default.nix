@@ -43,7 +43,7 @@ in {
     };
   };
   config = {
-    flax.globalModules = mkIf cfg.useGlobalPkgs [
+    flax.nixos.globalModules = mkIf cfg.useGlobalPkgs [
       ({system, ...}: {
         nixpkgs.pkgs = withSystem system (
           {pkgs, ...}: pkgs
