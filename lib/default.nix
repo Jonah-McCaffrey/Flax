@@ -11,33 +11,31 @@ in {
     ./systems.nix
     ./home-manager.nix
   ];
-  options = {
-    flax.lib = mkOption {
-      type = submoduleWith {
-        shorthandOnlyDefinesConfig = false;
-        modules = [
-          {
-            options = {
-              enable = mkOption {
-                type = bool;
-                default = true;
-                description = "Whether to enable myOption";
-              };
-              namespace = mkOption {
-                type = str;
-                default = "";
-                description = "namespace to use for the custom library";
-              };
+  options.flax.lib = mkOption {
+    type = submoduleWith {
+      shorthandOnlyDefinesConfig = false;
+      modules = [
+        {
+          options = {
+            enable = mkOption {
+              type = bool;
+              default = true;
+              description = "Whether to enable the custom library module";
             };
-            freeformType = attrsOf anything;
-            # Optional: set defaults for freeform attrs if needed
-            # config._freeformOptions = mkIf (cfg.enable) {};
-          }
-        ];
-      };
-      default = {};
-      description = "Custom library including the Flax builtin/default functionality and custom user library content under a custom namespace";
+            namespace = mkOption {
+              type = str;
+              default = "";
+              description = "namespace to use for the custom library";
+            };
+          };
+          freeformType = attrsOf anything;
+          # Optional: set defaults for freeform attrs if needed
+          # config._freeformOptions = mkIf (cfg.enable) {};
+        }
+      ];
     };
+    default = {};
+    description = "Custom library including the Flax builtin/default functionality and custom user library content under a custom namespace";
   };
   config = let
     cfg = config.flax.lib;

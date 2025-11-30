@@ -2,9 +2,10 @@
   config,
   lib,
   inputs,
+  withSystem,
   ...
 }: let
-  inherit (lib) mkOption mkIf;
+  inherit (lib) mkOption mkEnableOption mkIf;
   inherit (inputs.nixpkgs.lib) nixosSystem;
   cfg = config.flax.nixos;
 in {
@@ -24,6 +25,7 @@ in {
       default = ./.;
       description = "The directory Flax will look for host configurations";
     };
+    useGlobalPkgs = mkEnableOption "Use the global perSystem pkgs from the nixpkgs module for nixos configurations";
     hostFunction = mkOption {
       type = functionTo attrs;
       default = nixosSystem;
@@ -40,9 +42,18 @@ in {
       description = "List containing modules which will be included in all host configurations";
     };
   };
-  config.flake = mkIf cfg.enable {
-    nixosConfigurations = config.flax.lib.mkNixOS {
-      inherit (cfg) src systems hostFunction globalArgs globalModules;
+  config = {
+    flax.globalModules = mkIf cfg.useGlobalPkgs [
+      ({system, ...}: {
+        nixpkgs.pkgs = withSystem system (
+          {pkgs, ...}: pkgs
+        );
+      })
+    ];
+    flake = mkIf cfg.enable {
+      nixosConfigurations = config.flax.lib.mkNixOS {
+        inherit (cfg) src systems hostFunction globalArgs globalModules;
+      };
     };
   };
 }
