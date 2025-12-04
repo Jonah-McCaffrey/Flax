@@ -3,8 +3,8 @@
   inputs,
   ...
 }: let
-  inherit (builtins) attrNames readDir head split;
-  inherit (lib) foldl' recursiveUpdate mkMerge crossLists mkDefault nameValuePair mapAttrs' mapAttrsToList;
+  inherit (builtins) attrNames readDir head split match elemAt;
+  inherit (lib) foldl' recursiveUpdate mkMerge crossLists mkDefault nameValuePair mapAttrs' mapAttrsToList last;
   inherit (inputs.nixpkgs.lib) nixosSystem;
   inherit (inputs.home-manager.lib) homeManagerConfiguration;
 in {
@@ -16,13 +16,30 @@ in {
     disabled = {enable = false;};
 
     # Removes a file's extension
-    removeExtension = file: head (split "\\." file);
+    getBase = file: head (split "\\." file);
+
+    # Removes a file's extension
+    getExt = file: last (split "\\." file);
+
+    # Map a filename string to an attrset containing the basename and file extension
+    splitFilename = filename: let
+      matched = match "([^.]*)\\.(.*)" filename; # [ base ext ] or null
+    in
+      if matched == null
+      then {
+        base = filename;
+        ext = "";
+      }
+      else {
+        base = elemAt matched 0;
+        ext = elemAt matched 1;
+      };
 
     # Get list of files from a given directory (WITH extension)
     getFiles = dir: attrNames (readDir dir);
 
     # Get list of file/directory names from a given directory (WITHOUT extension)
-    getNames = dir: map removeExtension (getFiles dir);
+    getNames = dir: map getBase (getFiles dir);
 
     # Deep merge a list of attrsets
     mergeSets = foldl' recursiveUpdate {};
@@ -53,7 +70,7 @@ in {
     }: dir:
       mapAttrs' (
         name: type: let
-          title = removeExtension name;
+          title = getBase name;
           file = import (dir
             + "/${
               if type == "regular"

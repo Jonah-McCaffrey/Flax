@@ -2,11 +2,10 @@
   config,
   lib,
   inputs,
-  withSystem,
   ...
 }: let
-  inherit (lib) mkOption mkEnableOption;
-  inherit (lib.types) bool list attrs;
+  inherit (lib) mkOption;
+  inherit (lib.types) bool attrs;
   cfg = config.flax.nixpkgs;
 in {
   options.flax.nixpkgs = {
@@ -29,8 +28,7 @@ in {
   config = {
     perSystem = {system, ...}: {
       _module.args.pkgs = with cfg;
-        import version {inherit system;}
-        // args;
+        import version ({inherit system;} // args);
     };
   };
 }
