@@ -4,7 +4,7 @@
   inputs,
   ...
 }: let
-  inherit (lib) mkOption;
+  inherit (lib) mkOption mkIf;
   inherit (lib.types) bool attrs;
   cfg = config.flax.nixpkgs;
 in {
@@ -25,7 +25,7 @@ in {
       description = "Set of args to pass when importing nixpkgs";
     };
   };
-  config = {
+  config = mkIf cfg.enable {
     perSystem = {system, ...}: {
       _module.args.pkgs = with cfg;
         import version ({inherit system;} // args);
