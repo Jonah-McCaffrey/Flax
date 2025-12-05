@@ -5,10 +5,14 @@ flax-lib: {lib, ...}: {
     ./nixos.nix
     ./homeManager.nix
   ];
-  config.systems = lib.mkDefault [
-    "aarch64-darwin"
-    "aarch64-linux"
-    "x86_64-darwin"
-    "x86_64-linux"
-  ];
+
+  config = {
+    _module.args = {inherit flax-lib;};
+    systems = lib.mkDefault [
+      "aarch64-darwin"
+      "aarch64-linux"
+      "x86_64-darwin"
+      "x86_64-linux"
+    ];
+  };
 }
