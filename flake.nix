@@ -10,7 +10,7 @@
     nixpkgs,
     ...
   }: {
-    flakeModule.default = import ./flakeModule.nix self.lib;
     lib = import ./lib nixpkgs.lib;
+    flakeModule.default = import ./flakeModule self.lib;
   };
 }
