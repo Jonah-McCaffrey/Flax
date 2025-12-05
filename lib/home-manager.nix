@@ -1,5 +1,5 @@
-{lib, ...}: {
-  flax.lib.home-manager = {
+lib: {
+  home-manager = {
     # Function to be used within home.file to symlink the contents of a directory to a target directory
     homeLink = {
       config,

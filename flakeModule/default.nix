@@ -1,4 +1,4 @@
-{lib, ...}: {
+flax-lib: {lib, ...}: {
   imports = [
     ./lib
     ./nixpkgs
