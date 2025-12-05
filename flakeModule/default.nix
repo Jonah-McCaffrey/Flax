@@ -1,9 +1,9 @@
 flax-lib: {lib, ...}: {
   imports = [
-    ./lib
-    ./nixpkgs
-    ./nixos
-    ./homeManager
+    ./lib.nix
+    ./nixpkgs.nix
+    ./nixos.nix
+    ./homeManager.nix
   ];
   config.systems = lib.mkDefault [
     "aarch64-darwin"
