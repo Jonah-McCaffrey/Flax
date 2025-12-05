@@ -3,6 +3,7 @@
   lib,
   inputs,
   withSystem,
+  flax-lib,
   ...
 }: let
   inherit (lib) mkOption mkEnableOption mkIf;
@@ -51,7 +52,7 @@ in {
       })
     ];
     flake = mkIf cfg.enable {
-      nixosConfigurations = config.flax.lib.mkNixOS {
+      nixosConfigurations = flax-lib.mkNixOS {
         inherit (cfg) src systems hostFunction globalArgs globalModules;
       };
     };
