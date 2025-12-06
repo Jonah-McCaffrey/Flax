@@ -97,12 +97,13 @@ in rec {
           globalModules
           ++ [
             (hostsDir + "/${host}/configuration.nix")
-            {
+            ({config, ...}: {
               nixpkgs.hostPlatform = mkDefault system;
+              _module.args.system' = config.nixpkgs.hostPlatform;
               environment.sessionVariables = {
                 HOST_CONFIGURATION = "${host}@${system}";
               };
-            }
+            })
           ];
       };
     });
