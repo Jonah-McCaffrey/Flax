@@ -92,7 +92,7 @@ in rec {
             [
               hostConf
               ({config, ...}: {
-                _module.args.system = mkDefault config.nixpkgs.hostPlatform;
+                _module.args.system = config.nixpkgs.hostPlatform;
                 environment.sessionVariables = {
                   HOST_CONFIGURATION = mkDefault hostName;
                 };
