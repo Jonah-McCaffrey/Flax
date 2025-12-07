@@ -20,6 +20,11 @@ in {
       description = "The directory Flax will look for host configurations";
     };
     useGlobalPkgs = mkEnableOption "Use the global perSystem pkgs from the nixpkgs module for nixos configurations";
+    default = mkOption {
+      type = str;
+      default = "default.nix";
+      description = "File to look for by default in an imported directory";
+    };
     specialArgs = mkOption {
       type = attrs;
       default = {};
