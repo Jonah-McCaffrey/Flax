@@ -20,7 +20,7 @@ in {
       description = "The directory Flax will look for host configurations";
     };
     useGlobalPkgs = mkEnableOption "Use the global perSystem pkgs from the nixpkgs module for nixos configurations";
-    globalArgs = mkOption {
+    specialArgs = mkOption {
       type = attrs;
       default = {};
       description = "Attribute set containing specialArgs which will be provided to all host configurations";
@@ -42,7 +42,7 @@ in {
     flake = mkIf cfg.enable {
       nixosConfigurations =
         flax-lib.mkNixOS {
-          inherit (cfg) default globalArgs globalModules;
+          inherit (cfg) default specialArgs globalModules;
         }
         cfg.src;
     };

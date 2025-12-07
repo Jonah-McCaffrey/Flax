@@ -37,7 +37,7 @@ in {
   in
     mkIf cfg.enable {
       flax.nixos = {
-        globalArgs = lib-set;
+        specialArgs = lib-set;
         globalModules = [
           ({config, ...}:
             mkIf (config ? "home-manager") {
