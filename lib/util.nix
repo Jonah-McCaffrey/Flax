@@ -79,55 +79,27 @@ in rec {
 
   # Function for defining all host configurations
   mkNixOS = {
-    src,
-    systems ? ["x86_64-linux" "aarch64-linux"],
-    hostFunction ? nixosSystem,
-    globalArgs ? {},
+    default ? "configuration.nix",
+    specialArgs ? {},
     globalModules ? [],
-  }: let
-    hostsDir = src + "/hosts";
-    hosts = getFiles hostsDir;
-  in
-    mkCrossMerge [hosts systems] (host: system: {
-      "${host}@${system}" = hostFunction {
-        specialArgs =
-          globalArgs
-          // {inherit system;};
-        modules =
-          globalModules
-          ++ [
-            (hostsDir + "/${host}/configuration.nix")
-            {
-              nixpkgs.hostPlatform = mkDefault system;
-              environment.sessionVariables = {
-                HOST_CONFIGURATION = "${host}@${system}";
-              };
-            }
-          ];
-      };
-    });
-
-  # mkHome = {
-  #   src,
-  #   systems ? ["x86_64-linux" "x86_64-darwin" "aarch64-linux"],
-  #   homeFunction ? homeManagerConfiguration,
-  #   extraGlobalArgs ? {},
-  #   globalModules ? [],
-  # }: let
-  #   homesDir = src + "/homes";
-  #   homes = getFiles homesDir;
-  # in
-  #   mkCrossMerge [homes systems] (home: system: {
-  #     "${home}@${system}" = homeFunction {
-  #       pkgs = import inputs.nixpkgs {
-  #         inherit system;
-  #       };
-  #       extraSpecialArgs =
-  #         extraGlobalArgs
-  #         // {inherit system;};
-  #       modules =
-  #         globalModules
-  #         ++ [(homesDir + "/${home}/home.nix")];
-  #     };
-  #   });
+  }: src:
+    importToSet {
+      inherit default;
+      valueFunc = hostName: hostConf:
+        nixosSystem {
+          inherit specialArgs;
+          modules =
+            [
+              hostConf
+              ({config, ...}: {
+                _module.args.system = mkDefault config.nixpkgs.hostPlatform;
+                environment.sessionVariables = {
+                  HOST_CONFIGURATION = mkDefault hostName;
+                };
+              })
+            ]
+            ++ globalModules;
+        };
+    }
+    src;
 }
