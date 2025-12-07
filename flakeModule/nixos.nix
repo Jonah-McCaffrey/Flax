@@ -22,7 +22,7 @@ in {
     useGlobalPkgs = mkEnableOption "Use the global perSystem pkgs from the nixpkgs module for nixos configurations";
     default = mkOption {
       type = str;
-      default = "default.nix";
+      default = "configuration.nix";
       description = "File to look for by default in an imported directory";
     };
     specialArgs = mkOption {
