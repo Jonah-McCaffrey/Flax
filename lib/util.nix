@@ -100,7 +100,8 @@ in rec {
             {
               nixpkgs.hostPlatform = mkDefault system;
               environment.sessionVariables = {
-                HOST_CONFIGURATION = "${host}@${system}";
+                HOST_CONFIGURATION = host;
+                HOST_SYSTEM = system;
               };
             }
           ];
