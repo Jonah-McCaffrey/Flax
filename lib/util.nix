@@ -79,29 +79,27 @@ in rec {
 
   # Function for defining all host configurations
   mkNixOS = {
-    src,
-    systems ? ["x86_64-linux" "aarch64-linux"],
+    hosts,
+    topologies,
     hostFunction ? nixosSystem,
-    globalArgs ? {},
+    specialArgs ? {},
     globalModules ? [],
-  }: let
-    hostsDir = src + "/hosts";
-    hosts = getFiles hostsDir;
-  in
-    mkCrossMerge [hosts systems] (host: system: {
-      "${host}@${system}" = hostFunction {
-        specialArgs =
-          globalArgs
-          // {inherit system;};
+  }:
+    mkCrossMerge [hosts topologies] (host: topology: let
+      hostName = getBase (baseNameOf host);
+      topologyName = getBase (baseNameOf topology);
+    in {
+      "${topologyName}@${hostName}" = hostFunction {
+        inherit specialArgs;
         modules =
           globalModules
           ++ [
-            (hostsDir + "/${host}/configuration.nix")
+            host
+            topology
             {
-              nixpkgs.hostPlatform = mkDefault system;
               environment.sessionVariables = {
-                HOST_CONFIGURATION = host;
-                HOST_SYSTEM = system;
+                HOST = hostName;
+                TOPOLOGY = topologyName;
               };
             }
           ];
