@@ -26,9 +26,9 @@ in {
     };
   };
   config = mkIf cfg.enable {
-    perSystem = {...}: {
+    perSystem = {system, ...}: {
       _module.args.pkgs = import cfg.version (
-        {inherit (cfg) system;} // cfg.args
+        {inherit system;} // cfg.args
       );
     };
   };
