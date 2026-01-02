@@ -12,7 +12,7 @@ in {
     enable = mkOption {
       type = bool;
       default = true;
-      description = "Whether to enable the (global) nixpkgs module";
+      description = "Whether to enable the nixpkgs module";
     };
     version = mkOption {
       type = attrs;
@@ -26,9 +26,10 @@ in {
     };
   };
   config = mkIf cfg.enable {
-    perSystem = {system, ...}: {
-      _module.args.pkgs = with cfg;
-        import version ({inherit system;} // args);
+    perSystem = {...}: {
+      _module.args.pkgs = import cfg.version (
+        {inherit (cfg) system;} // cfg.args
+      );
     };
   };
 }
