@@ -1,10 +1,12 @@
 {
   config,
   lib,
+  inputs,
+  flax-lib,
   ...
 }: let
   inherit (lib) mkOption mkIf;
-  inherit (lib.types) str submoduleWith bool attrsOf anything;
+  inherit (lib.types) submoduleWith bool attrsOf anything;
 in {
   options.flax.lib = mkOption {
     type = submoduleWith {
@@ -17,11 +19,6 @@ in {
               default = true;
               description = "Whether to enable the custom library module";
             };
-            namespace = mkOption {
-              type = str;
-              default = "";
-              description = "namespace to use for the custom library";
-            };
           };
           freeformType = attrsOf anything;
         }
@@ -32,16 +29,13 @@ in {
   };
   config = let
     cfg = config.flax.lib;
-    flax-lib = import ../lib lib;
-    lib-set = {${cfg.namespace} = flax-lib;};
   in
     mkIf cfg.enable {
       flax.nixos = {
-        specialArgs = lib-set;
         globalModules = [
           ({config, ...}:
             mkIf (config ? "home-manager") {
-              home-manager.extraSpecialArgs = lib-set;
+              home-manager.extraSpecialArgs.lib = inputs.nixpkgs.lib.extend (final: prev: flax-lib);
             })
         ];
       };
