@@ -17,21 +17,19 @@ lib: let
           else dynport args "${target}/${name}"
       ) (filterAttrs modulePredicate (readDir target))
     );
-
-  result = {
-    # __functor = dynport;
-    default = "default.nix";
-    __functor = self: target:
-      flatten (
-        mapAttrsToList (
-          name: type:
-            if (type == "regular" || type == "symlink")
-            then "${target}/${name}"
-            else if (pathExists "${target}/${name}/${self.default}")
-            then "${target}/${name}/${self.default}"
-            else self.__functor self "${target}/${name}"
-        ) (filterAttrs modulePredicate (readDir target))
-      );
-  };
-in
-  result
+  # result = {
+  #   # __functor = dynport;
+  #   default = "default.nix";
+  #   __functor = self: target:
+  #     flatten (
+  #       mapAttrsToList (
+  #         name: type:
+  #           if (type == "regular" || type == "symlink")
+  #           then "${target}/${name}"
+  #           else if (pathExists "${target}/${name}/${self.default}")
+  #           then "${target}/${name}/${self.default}"
+  #           else self.__functor self "${target}/${name}"
+  #       ) (filterAttrs modulePredicate (readDir target))
+  #     );
+  # };
+in {inherit dynport;}
