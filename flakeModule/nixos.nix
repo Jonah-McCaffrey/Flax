@@ -21,7 +21,7 @@ in {
       default = ./hosts;
       description = "The directory Flax will look for host configurations";
     };
-    topolgies = mkOption {
+    topologies = mkOption {
       type = path;
       default = ./topologies;
       description = "The directory Flax will look for topology configurations";
