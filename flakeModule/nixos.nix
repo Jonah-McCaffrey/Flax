@@ -44,16 +44,16 @@ in {
     };
   };
   config = {
-    flax.nixos.globalModules = mkIf cfg.useGlobalPkgs [
-      ({system, ...}: {
-        nixpkgs = {
-          pkgs = withSystem system (
+    flax.nixos = {
+      specialArgs.lib = inputs.nixpkgs.lib.extend (final: prev: flax-lib);
+      globalModules = mkIf cfg.useGlobalPkgs [
+        ({system, ...}: {
+          nixpkgs.pkgs = withSystem system (
             {pkgs, ...}: pkgs
           );
-          lib = inputs.nixpkgs.lib.extend (final: prev: flax-lib);
-        };
-      })
-    ];
+        })
+      ];
+    };
     flake = mkIf cfg.enable {
       nixosConfigurations = flax-lib.mkNixOS {
         inherit (cfg) hosts topologies hostFunction specialArgs globalModules;
