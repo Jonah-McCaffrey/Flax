@@ -1,6 +1,6 @@
 lib: let
   inherit (builtins) attrNames readDir head split match elemAt;
-  inherit (lib) foldl' recursiveUpdate mkMerge crossLists mkDefault nameValuePair mapAttrs' mapAttrsToList last nixosSystem;
+  inherit (lib) foldl' recursiveUpdate mkMerge crossLists nameValuePair mapAttrs' mapAttrsToList last nixosSystem;
 in rec {
   # helper enabled value
   enabled = {enable = true;};
