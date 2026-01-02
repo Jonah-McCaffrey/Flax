@@ -44,6 +44,11 @@ in {
     };
   };
   config = {
+    perSystem = {
+      _module.args.pkgs.lib = inputs.nixpkgs.lib.extend (final: prev: {
+        enabled = {enable = true;};
+      });
+    };
     flax.nixos.globalModules = mkIf cfg.useGlobalPkgs [
       ({system, ...}: {
         nixpkgs.pkgs = withSystem system (
