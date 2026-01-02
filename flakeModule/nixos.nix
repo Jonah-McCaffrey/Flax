@@ -17,12 +17,12 @@ in {
       description = "Enable the Flax host aggregator submodule";
     };
     hosts = mkOption {
-      type = path;
+      type = listOf path;
       default = ./hosts;
       description = "The directory Flax will look for host configurations";
     };
     topologies = mkOption {
-      type = path;
+      type = listOf path;
       default = ./topologies;
       description = "The directory Flax will look for topology configurations";
     };
