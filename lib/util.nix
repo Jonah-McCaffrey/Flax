@@ -96,12 +96,13 @@ in rec {
           ++ [
             host
             topology
-            {
+            ({config, ...}: {
+              _module.args.system = config.nixpkgs.hostPlatform.system;
               environment.sessionVariables = {
                 HOST = hostName;
                 TOPOLOGY = topologyName;
               };
-            }
+            })
           ];
       };
     });
