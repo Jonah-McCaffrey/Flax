@@ -16,15 +16,15 @@ in {
       default = true;
       description = "Enable the Flax host aggregator submodule";
     };
-    systems = mkOption {
-      type = nonEmptyListOf str;
-      default = ["x86_64-linux" "aarch64-linux"];
-      description = "List of system architectures which will be generated in the flake outputs for each host configuration";
-    };
-    src = mkOption {
+    hosts = mkOption {
       type = path;
-      default = ./.;
+      default = ./hosts;
       description = "The directory Flax will look for host configurations";
+    };
+    topolgies = mkOption {
+      type = path;
+      default = ./topologies;
+      description = "The directory Flax will look for topology configurations";
     };
     useGlobalPkgs = mkEnableOption "Use the global perSystem pkgs from the nixpkgs module for nixos configurations";
     hostFunction = mkOption {
@@ -32,7 +32,7 @@ in {
       default = nixosSystem;
       description = "Function to create a host configuration";
     };
-    globalArgs = mkOption {
+    specialArgs = mkOption {
       type = attrs;
       default = {};
       description = "Attribute set containing specialArgs which will be provided to all host configurations";
@@ -53,7 +53,7 @@ in {
     ];
     flake = mkIf cfg.enable {
       nixosConfigurations = flax-lib.mkNixOS {
-        inherit (cfg) src systems hostFunction globalArgs globalModules;
+        inherit (cfg) hosts topologies hostFunction specialArgs globalModules;
       };
     };
   };
