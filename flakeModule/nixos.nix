@@ -44,14 +44,14 @@ in {
     };
   };
   config = {
-    flax.nixos.specialArgs.lib = inputs.nixpkgs.lib.extend (final: prev: {
-      enabled = {enable = true;};
-    });
     flax.nixos.globalModules = mkIf cfg.useGlobalPkgs [
       ({system, ...}: {
-        nixpkgs.pkgs = withSystem system (
-          {pkgs, ...}: pkgs
-        );
+        nixpkgs = {
+          pkgs = withSystem system (
+            {pkgs, ...}: pkgs
+          );
+          lib = inputs.nixpkgs.lib.extend (final: prev: flax-lib);
+        };
       })
     ];
     flake = mkIf cfg.enable {
