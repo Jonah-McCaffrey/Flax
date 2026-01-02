@@ -31,14 +31,14 @@ in {
     cfg = config.flax.lib;
   in
     mkIf cfg.enable {
-      flax.nixos = {
-        globalModules = [
-          ({config, ...}:
-            mkIf (config ? "home-manager") {
-              home-manager.extraSpecialArgs.lib = inputs.nixpkgs.lib.extend (final: prev: flax-lib);
-            })
-        ];
-      };
+      # flax.nixos = {
+      #   globalModules = [
+      #     ({config, ...}:
+      #       mkIf (config ? "home-manager") {
+      #         home-manager.extraSpecialArgs.lib = inputs.nixpkgs.lib.extend (final: prev: flax-lib);
+      #       })
+      #   ];
+      # };
       flake.lib = flax-lib;
     };
 }
